@@ -17,6 +17,11 @@
 -- receivers should build a smoothed local clock from /clock/tick
 -- and schedule playback against that, not against raw arrival time
 --
+-- osc host auto-discovery: when "osc auto-discover host" is on, sending
+-- ANY osc message to this norns (its own listen port, default 10111)
+-- sets osc_host to that sender's address -- send once from your
+-- receiver to point awake_osc at it without typing an IP in by hand
+--
 -- E1 changes modes:
 -- STEP/LOOP/SOUND/OPTION
 --
@@ -133,6 +138,12 @@ end
 
 function osc_target()
   return {params:get("osc_host"), params:get("osc_port")}
+end
+
+function osc.event(path, args, from)
+  if params:get("osc_auto_host") == 2 and from ~= nil and from[1] ~= nil then
+    params:set("osc_host", from[1])
+  end
 end
 
 function all_notes_off()
@@ -319,13 +330,15 @@ function init()
       midi_channel = value
     end}
 
-  params:add_group("osc",4)
+  params:add_group("osc",5)
   params:add{type = "option", id = "osc_enabled", name = "osc out",
     options = options.OSC_ENABLED, default = 1,
     action = function() all_notes_off() end}
+  params:add{type = "option", id = "osc_auto_host", name = "osc auto-discover host",
+    options = {"off", "on"}, default = 2}
   params:add{type = "text", id = "osc_host", name = "osc host", text = "127.0.0.1"}
   params:add{type = "number", id = "osc_port", name = "osc port",
-    min = 1024, max = 65535, default = 10101}
+    min = 1024, max = 65535, default = 10111}
   params:add{type = "text", id = "osc_path", name = "osc path prefix", text = "/awake"}
 
   params:add_group("step",8)

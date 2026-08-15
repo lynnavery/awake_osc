@@ -56,7 +56,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 40.0, 60.0, 140.0, 22.0 ],
-					"text" : "udpreceive 10101"
+					"text" : "udpreceive 10111"
 				}
 			},
 			{
@@ -185,6 +185,49 @@
 					"patching_rect" : [ 330.0, 300.0, 70.0, 18.0 ],
 					"text" : "note off"
 				}
+			},
+			{
+				"box" : 				{
+					"id" : "comment-announce",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 470.0, 20.0, 190.0, 34.0 ],
+					"text" : "edit the IP below, click connect, then click announce so awake_osc auto-discovers this computer"
+				}
+			},
+			{
+				"box" : 				{
+					"id" : "msg-connect",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 470.0, 65.0, 190.0, 22.0 ],
+					"text" : "connect 192.168.1.185 10111"
+				}
+			},
+			{
+				"box" : 				{
+					"id" : "obj-udpsend",
+					"maxclass" : "newobj",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 470.0, 105.0, 100.0, 22.0 ],
+					"text" : "udpsend"
+				}
+			},
+			{
+				"box" : 				{
+					"id" : "msg-hello",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 470.0, 145.0, 100.0, 22.0 ],
+					"text" : "/awake/hello"
+				}
 			}
 		],
 		"lines" : [
@@ -234,6 +277,18 @@
 				"patchline" : 				{
 					"source" : [ "obj-js", 1 ],
 					"destination" : [ "flonum-noteoff", 0 ]
+				}
+			},
+			{
+				"patchline" : 				{
+					"source" : [ "msg-connect", 0 ],
+					"destination" : [ "obj-udpsend", 0 ]
+				}
+			},
+			{
+				"patchline" : 				{
+					"source" : [ "msg-hello", 0 ],
+					"destination" : [ "obj-udpsend", 0 ]
 				}
 			}
 		]
