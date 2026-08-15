@@ -56,7 +56,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
 					"patching_rect" : [ 40.0, 60.0, 140.0, 22.0 ],
-					"text" : "udpreceive 10111"
+					"text" : "udpreceive 10101"
 				}
 			},
 			{
