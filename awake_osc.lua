@@ -311,7 +311,7 @@ function init()
     action = function() all_notes_off() end}
   params:add{type = "text", id = "osc_host", name = "osc host", text = "127.0.0.1"}
   params:add{type = "number", id = "osc_port", name = "osc port",
-    min = 1024, max = 65535, default = 57120}
+    min = 1024, max = 65535, default = 10101}
   params:add{type = "text", id = "osc_path", name = "osc path prefix", text = "/awake"}
 
   params:add_group("step",8)
