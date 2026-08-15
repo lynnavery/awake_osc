@@ -7,9 +7,15 @@
 --
 -- (grid optional, arc optional)
 --
--- adds: OSC note-on/off out
+-- adds: OSC note + clock out
 -- to a configurable host:port,
 -- alongside whatever OUT is set to
+--
+-- OSC messages sent (path prefix configurable, default /awake):
+--   <prefix>/clock/tick <period_ms>   every step, always
+--   <prefix>/note <note> <freq> <vel> <dur_ms>   when a step triggers
+-- receivers should build a smoothed local clock from /clock/tick
+-- and schedule playback against that, not against raw arrival time
 --
 -- E1 changes modes:
 -- STEP/LOOP/SOUND/OPTION
@@ -104,7 +110,6 @@ local midi_channel
 local scale_names = {}
 local notes = {}
 local active_notes = {}
-local active_osc_notes = {}
 
 local edit_ch = 1
 local edit_pos = 1
@@ -137,13 +142,6 @@ function all_notes_off()
     end
   end
   active_notes = {}
-
-  if params:get("osc_enabled") == 2 then
-    for _, a in pairs(active_osc_notes) do
-      osc.send(osc_target(), params:get("osc_path").."/note_off", {a})
-    end
-  end
-  active_osc_notes = {}
 end
 
 function morph(loop, which)
@@ -171,6 +169,15 @@ function step()
       two.pos = two.pos + 1
       if two.pos > two.length then two.pos = 1 end
 
+      -- clock reference for OSC receivers to build a jitter-smoothed local
+      -- clock against (a phase-locked loop), sent every step regardless of
+      -- whether a note actually fires this step, so the reference stream
+      -- stays continuous through rests
+      local step_ms = (60 / params:get("clock_tempo") / params:get("step_div")) * 1000
+      if params:get("osc_enabled") == 2 then
+        osc.send(osc_target(), params:get("osc_path").."/clock/tick", {step_ms})
+      end
+
       if one.data[one.pos] > 0 then
         local note_num = notes[one.data[one.pos]+two.data[two.pos]]
         local freq = MusicUtil.note_num_to_freq(note_num + (params:get("detune")*0.01))
@@ -196,15 +203,22 @@ function step()
             table.insert(active_notes, note_num)
           end
 
-          -- OSC out (independent of "out" selection)
-          if params:get("osc_enabled") == 2 then
-            osc.send(osc_target(), params:get("osc_path").."/note_on", {note_num, freq, 96})
-            table.insert(active_osc_notes, note_num)
+          -- Note off timeout (MIDI only; OSC receivers derive note-off
+          -- locally from the duration sent below)
+          if params:get("note_length") < 4 and #active_notes > 0 then
+            notes_off_metro:start((60 / params:get("clock_tempo") / params:get("step_div")) * params:get("note_length") * 0.25, 1)
           end
 
-          -- Note off timeout (covers MIDI note-off and OSC note-off)
-          if params:get("note_length") < 4 and (#active_notes > 0 or #active_osc_notes > 0) then
-            notes_off_metro:start((60 / params:get("clock_tempo") / params:get("step_div")) * params:get("note_length") * 0.25, 1)
+          -- OSC out (independent of "out" selection): one self-contained
+          -- message per note with its own duration, instead of separate
+          -- note-on/note-off messages. Receivers should NOT trigger
+          -- playback the instant this arrives -- use the /clock/tick
+          -- stream to build a smoothed local clock and schedule the note
+          -- (and its release, dur_ms later) against that instead, so a
+          -- single late/early packet doesn't show up as audible jitter.
+          if params:get("osc_enabled") == 2 then
+            local dur_ms = step_ms * (params:get("note_length") * 0.25)
+            osc.send(osc_target(), params:get("osc_path").."/note", {note_num, freq, 96, dur_ms})
           end
         end
       end

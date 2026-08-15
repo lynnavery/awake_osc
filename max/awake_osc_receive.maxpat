@@ -44,8 +44,8 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 40.0, 20.0, 600.0, 20.0 ],
-					"text" : "awake_osc receiver — jitter buffer smooths out UDP delivery timing"
+					"patching_rect" : [ 40.0, 20.0, 620.0, 20.0 ],
+					"text" : "awake_osc receiver — recovers a smoothed local clock from /clock/tick, schedules notes against it"
 				}
 			},
 			{
@@ -66,8 +66,29 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "", "", "" ],
-					"patching_rect" : [ 40.0, 105.0, 320.0, 22.0 ],
-					"text" : "route /awake/note_on /awake/note_off"
+					"patching_rect" : [ 40.0, 105.0, 300.0, 22.0 ],
+					"text" : "route /awake/clock/tick /awake/note"
+				}
+			},
+			{
+				"box" : 				{
+					"id" : "obj-js",
+					"maxclass" : "newobj",
+					"numinlets" : 2,
+					"numoutlets" : 2,
+					"outlettype" : [ "", "" ],
+					"patching_rect" : [ 40.0, 160.0, 160.0, 22.0 ],
+					"text" : "js clockrecovery.js"
+				}
+			},
+			{
+				"box" : 				{
+					"id" : "comment-js",
+					"maxclass" : "comment",
+					"numinlets" : 1,
+					"numoutlets" : 0,
+					"patching_rect" : [ 215.0, 160.0, 420.0, 34.0 ],
+					"text" : "in 0 = tick period, in 1 = note; out 0 = note-on [note freq vel], out 1 = note-off [note]. optional args: [js clockrecovery.js period_alpha phase_alpha] to tune smoothing (lower = smoother but slower to track tempo changes)"
 				}
 			},
 			{
@@ -77,51 +98,8 @@
 					"numinlets" : 1,
 					"numoutlets" : 3,
 					"outlettype" : [ "float", "float", "float" ],
-					"patching_rect" : [ 40.0, 155.0, 110.0, 22.0 ],
+					"patching_rect" : [ 40.0, 220.0, 110.0, 22.0 ],
 					"text" : "unpack f f f"
-				}
-			},
-			{
-				"box" : 				{
-					"id" : "obj-unpack-off",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "float" ],
-					"patching_rect" : [ 380.0, 155.0, 70.0, 22.0 ],
-					"text" : "unpack f"
-				}
-			},
-			{
-				"box" : 				{
-					"id" : "obj-pipe-on",
-					"maxclass" : "newobj",
-					"numinlets" : 3,
-					"numoutlets" : 3,
-					"outlettype" : [ "float", "float", "float" ],
-					"patching_rect" : [ 40.0, 210.0, 110.0, 22.0 ],
-					"text" : "pipe 20 20 20"
-				}
-			},
-			{
-				"box" : 				{
-					"id" : "obj-pipe-off",
-					"maxclass" : "newobj",
-					"numinlets" : 1,
-					"numoutlets" : 1,
-					"outlettype" : [ "float" ],
-					"patching_rect" : [ 380.0, 210.0, 70.0, 22.0 ],
-					"text" : "pipe 20"
-				}
-			},
-			{
-				"box" : 				{
-					"id" : "comment-tune",
-					"maxclass" : "comment",
-					"numinlets" : 1,
-					"numoutlets" : 0,
-					"patching_rect" : [ 170.0, 210.0, 250.0, 34.0 ],
-					"text" : "increase the ms args on both pipes together if hiccups persist; this is a fixed latency/smoothness tradeoff"
 				}
 			},
 			{
@@ -132,7 +110,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "float" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 40.0, 265.0, 70.0, 22.0 ]
+					"patching_rect" : [ 40.0, 270.0, 70.0, 22.0 ]
 				}
 			},
 			{
@@ -143,7 +121,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "float" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 125.0, 265.0, 70.0, 22.0 ]
+					"patching_rect" : [ 125.0, 270.0, 70.0, 22.0 ]
 				}
 			},
 			{
@@ -154,7 +132,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "float" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 210.0, 265.0, 70.0, 22.0 ]
+					"patching_rect" : [ 210.0, 270.0, 70.0, 22.0 ]
 				}
 			},
 			{
@@ -165,7 +143,7 @@
 					"numoutlets" : 1,
 					"outlettype" : [ "float" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 380.0, 265.0, 70.0, 22.0 ]
+					"patching_rect" : [ 330.0, 270.0, 70.0, 22.0 ]
 				}
 			},
 			{
@@ -174,7 +152,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 40.0, 295.0, 70.0, 18.0 ],
+					"patching_rect" : [ 40.0, 300.0, 70.0, 18.0 ],
 					"text" : "note"
 				}
 			},
@@ -184,7 +162,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 125.0, 295.0, 70.0, 18.0 ],
+					"patching_rect" : [ 125.0, 300.0, 70.0, 18.0 ],
 					"text" : "freq (hz)"
 				}
 			},
@@ -194,7 +172,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 210.0, 295.0, 70.0, 18.0 ],
+					"patching_rect" : [ 210.0, 300.0, 70.0, 18.0 ],
 					"text" : "velocity"
 				}
 			},
@@ -204,7 +182,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 380.0, 295.0, 70.0, 18.0 ],
+					"patching_rect" : [ 330.0, 300.0, 70.0, 18.0 ],
 					"text" : "note off"
 				}
 			}
@@ -219,60 +197,42 @@
 			{
 				"patchline" : 				{
 					"source" : [ "obj-route", 0 ],
-					"destination" : [ "obj-unpack-on", 0 ]
+					"destination" : [ "obj-js", 0 ]
 				}
 			},
 			{
 				"patchline" : 				{
 					"source" : [ "obj-route", 1 ],
-					"destination" : [ "obj-unpack-off", 0 ]
+					"destination" : [ "obj-js", 1 ]
+				}
+			},
+			{
+				"patchline" : 				{
+					"source" : [ "obj-js", 0 ],
+					"destination" : [ "obj-unpack-on", 0 ]
 				}
 			},
 			{
 				"patchline" : 				{
 					"source" : [ "obj-unpack-on", 0 ],
-					"destination" : [ "obj-pipe-on", 0 ]
-				}
-			},
-			{
-				"patchline" : 				{
-					"source" : [ "obj-unpack-on", 1 ],
-					"destination" : [ "obj-pipe-on", 1 ]
-				}
-			},
-			{
-				"patchline" : 				{
-					"source" : [ "obj-unpack-on", 2 ],
-					"destination" : [ "obj-pipe-on", 2 ]
-				}
-			},
-			{
-				"patchline" : 				{
-					"source" : [ "obj-unpack-off", 0 ],
-					"destination" : [ "obj-pipe-off", 0 ]
-				}
-			},
-			{
-				"patchline" : 				{
-					"source" : [ "obj-pipe-on", 0 ],
 					"destination" : [ "flonum-note", 0 ]
 				}
 			},
 			{
 				"patchline" : 				{
-					"source" : [ "obj-pipe-on", 1 ],
+					"source" : [ "obj-unpack-on", 1 ],
 					"destination" : [ "flonum-freq", 0 ]
 				}
 			},
 			{
 				"patchline" : 				{
-					"source" : [ "obj-pipe-on", 2 ],
+					"source" : [ "obj-unpack-on", 2 ],
 					"destination" : [ "flonum-vel", 0 ]
 				}
 			},
 			{
 				"patchline" : 				{
-					"source" : [ "obj-pipe-off", 0 ],
+					"source" : [ "obj-js", 1 ],
 					"destination" : [ "flonum-noteoff", 0 ]
 				}
 			}
